@@ -96,6 +96,38 @@
       "title": "GenericSettings",
       "type": "object"
     },
+    "GitHubSettings": {
+      "additionalProperties": true,
+      "description": "Settings for using GitHub Models in the fast-agent application.",
+      "properties": {
+        "api_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Api Key"
+        },
+        "base_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Url"
+        }
+      },
+      "title": "GitHubSettings",
+      "type": "object"
+    },
     "GoogleSettings": {
       "additionalProperties": true,
       "description": "Settings for using OpenAI models in the fast-agent application.",
@@ -758,6 +790,18 @@
       ],
       "default": null,
       "description": "Settings for using DeepSeek models in the fast-agent application"
+    },
+    "github": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GitHubSettings"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Settings for using GitHub Models in the fast-agent application"
     },
     "google": {
       "anyOf": [

@@ -14,6 +14,7 @@ class Provider(Enum):
     GOOGLE = "google"
     DEEPSEEK = "deepseek"
     GENERIC = "generic"
+    GITHUB = "github"  # GitHub Models
     OPENROUTER = "openrouter"
     TENSORZERO = "tensorzero"  # For TensorZero Gateway
     AZURE = "azure"  # Azure OpenAI Service

@@ -13,6 +13,7 @@ from mcp_agent.llm.providers.augmented_llm_anthropic import AnthropicAugmentedLL
 from mcp_agent.llm.providers.augmented_llm_azure import AzureOpenAIAugmentedLLM
 from mcp_agent.llm.providers.augmented_llm_deepseek import DeepSeekAugmentedLLM
 from mcp_agent.llm.providers.augmented_llm_generic import GenericAugmentedLLM
+from mcp_agent.llm.providers.augmented_llm_github import GitHubAugmentedLLM
 from mcp_agent.llm.providers.augmented_llm_google import GoogleAugmentedLLM
 from mcp_agent.llm.providers.augmented_llm_openai import OpenAIAugmentedLLM
 from mcp_agent.llm.providers.augmented_llm_openrouter import OpenRouterAugmentedLLM
@@ -29,6 +30,7 @@ LLMClass = Union[
     Type[PassthroughLLM],
     Type[PlaybackLLM],
     Type[DeepSeekAugmentedLLM],
+    Type[GitHubAugmentedLLM],
     Type[OpenRouterAugmentedLLM],
     Type[TensorZeroAugmentedLLM],
 ]
@@ -117,6 +119,7 @@ class ModelFactory:
         Provider.FAST_AGENT: PassthroughLLM,
         Provider.DEEPSEEK: DeepSeekAugmentedLLM,
         Provider.GENERIC: GenericAugmentedLLM,
+        Provider.GITHUB: GitHubAugmentedLLM,
         Provider.GOOGLE: GoogleAugmentedLLM,  # type: ignore
         Provider.OPENROUTER: OpenRouterAugmentedLLM,
         Provider.TENSORZERO: TensorZeroAugmentedLLM,
