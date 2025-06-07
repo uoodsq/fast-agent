@@ -27,6 +27,7 @@ from mcp_agent.config import (
     get_settings,
 )
 from mcp_agent.logging.logger import get_logger
+from mcp_agent.mcp.hf_auth import add_hf_auth_header
 from mcp_agent.mcp.logger_textio import get_stderr_handler
 from mcp_agent.mcp.mcp_connection_manager import (
     MCPConnectionManager,
@@ -70,9 +71,15 @@ class ServerRegistry:
             config (Settings): The Settings object containing the server configurations.
             config_path (str): Path to the YAML configuration file.
         """
-        self.registry = (
-            self.load_registry_from_file(config_path) if config is None else config.mcp.servers
-        )
+        if config is None:
+            self.registry = self.load_registry_from_file(config_path)
+        elif config.mcp is not None and hasattr(config.mcp, 'servers') and config.mcp.servers is not None:
+            # Ensure config.mcp exists, has a 'servers' attribute, and it's not None
+            self.registry = config.mcp.servers
+        else:
+            # Default to an empty dictionary if config.mcp is None or has no 'servers'
+            self.registry = {}
+
         self.init_hooks: Dict[str, InitHookCallable] = {}
         self.connection_manager = MCPConnectionManager(self)
 
@@ -88,8 +95,13 @@ class ServerRegistry:
         Raises:
             ValueError: If the configuration is invalid.
         """
+        servers = {} 
 
-        servers = get_settings(config_path).mcp.servers or {}
+        settings = get_settings(config_path)
+        
+        if settings.mcp is not None and hasattr(settings.mcp, 'servers') and settings.mcp.servers is not None:
+            return settings.mcp.servers
+        
         return servers
 
     @asynccontextmanager
@@ -165,11 +177,14 @@ class ServerRegistry:
             if not config.url:
                 raise ValueError(f"URL is required for SSE transport: {server_name}")
 
+            # Apply HuggingFace authentication if appropriate
+            headers = add_hf_auth_header(config.url, config.headers)
+
             # Use sse_client to get the read and write streams
             async with _add_none_to_context(
                 sse_client(
                     config.url,
-                    config.headers,
+                    headers,
                     sse_read_timeout=config.read_transport_sse_timeout_seconds,
                 )
             ) as (read_stream, write_stream, _):
@@ -187,9 +202,12 @@ class ServerRegistry:
                         logger.debug(f"{server_name}: Closed session to server")
         elif config.transport == "http":
             if not config.url:
-                raise ValueError(f"URL is required for SSE transport: {server_name}")
+                raise ValueError(f"URL is required for HTTP transport: {server_name}")
 
-            async with streamablehttp_client(config.url, config.headers) as (
+            # Apply HuggingFace authentication if appropriate
+            headers = add_hf_auth_header(config.url, config.headers)
+
+            async with streamablehttp_client(config.url, headers) as (
                 read_stream,
                 write_stream,
                 _,
